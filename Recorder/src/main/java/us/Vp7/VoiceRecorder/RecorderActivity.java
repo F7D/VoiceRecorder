@@ -6,9 +6,11 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.text.format.Time;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -21,7 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
 /**
  * Created by Farzad-msi7 on 8/11/2017.
  */
@@ -37,32 +38,62 @@ public class RecorderActivity extends Activity {
     private ProgressBar mProgressBar;
 
 
+    private Chronometer chronometer;
+
+
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
         initRecorder();
+        //============================
+
+        //Create Folder
+        File folder = new File(Environment.getExternalStorageDirectory().toString()+"/7Recorder/");
+        folder.mkdirs();
+
+        //Save the path as a string value
+        String extStorageDirectory = folder.toString();
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         final Button button = (Button) findViewById(R.id.button);
         button.setText(startRecordingLabel);
 
+        chronometer = (Chronometer) findViewById(R.id.chronometer);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
+              chronometer.setBase(SystemClock.elapsedRealtime());
+
+
                 if (!mIsRecording) {
                     button.setText(stopRecordingLabel);
                     mIsRecording = true;
                     mRecorder.startRecording();
                     mRecording = getFile("raw");
                     startBufferedWrite(mRecording);
+                    chronometer.start();
+                    switch(v.getId()) {
+                        case R.id.button:
+                            chronometer.setBase(SystemClock.elapsedRealtime());
+                            chronometer.start();
+                            break;
+                    }
                 } else {
                     button.setText(startRecordingLabel);
                     mIsRecording = false;
                     mRecorder.stop();
+                    chronometer.stop();
                     File waveFile = getFile("wav");
+                    switch(v.getId()) {
+                        case R.id.button:
+                            chronometer.stop();
+                            break;
+                    }
+
                     try {
                         rawToWave(mRecording, waveFile);
                     } catch (IOException e) {
@@ -71,9 +102,11 @@ public class RecorderActivity extends Activity {
                     Toast.makeText(RecorderActivity.this, "Recorded to " + waveFile.getName(),
                             Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
     }
+
 
     @Override
     public void onDestroy() {
@@ -181,7 +214,7 @@ public class RecorderActivity extends Activity {
     private File getFile(final String suffix) {
         Time time = new Time();
         time.setToNow();
-        return new File(Environment.getExternalStorageDirectory(), time.format("%Y%m%d%H%M%S") + "." + suffix);
+        return new File(Environment.getExternalStorageDirectory(),"/7Recorder/"+ time.format("%Y%m%d%H%M%S") + "." + suffix);
     }
 
     private void writeInt(final DataOutputStream output, final int value) throws IOException {

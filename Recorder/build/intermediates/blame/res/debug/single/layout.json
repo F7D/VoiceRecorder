@@ -1,10 +1,6 @@
 [
     {
-        "merged": "H:\\git-voice\\VoiceRecorder\\Recorder\\build\\intermediates\\res\\merged\\debug\\layout\\main.xml",
-        "source": "H:\\git-voice\\VoiceRecorder\\Recorder\\src\\main\\res\\layout\\main.xml"
-    },
-    {
-        "merged": "H:\\git-voice\\VoiceRecorder3\\Recorder\\build\\intermediates\\res\\merged\\debug\\layout\\main.xml",
-        "source": "H:\\git-voice\\VoiceRecorder3\\Recorder\\src\\main\\res\\layout\\main.xml"
+        "merged": "H:\\00\\Voice\\Recorder\\build\\intermediates\\res\\merged\\debug\\layout\\main.xml",
+        "source": "H:\\00\\Voice\\Recorder\\src\\main\\res\\layout\\main.xml"
     }
 ]
