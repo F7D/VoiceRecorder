@@ -6,6 +6,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.text.format.Time;
 import android.view.View;
@@ -36,6 +37,7 @@ public class RecorderActivity extends Activity {
     private short[] mBuffer;
     private boolean mIsRecording = false;
     private ProgressBar mProgressBar;
+    private Handler Handler = new Handler();
 
 
     private Chronometer chronometer;
@@ -53,7 +55,7 @@ public class RecorderActivity extends Activity {
         File folder = new File(Environment.getExternalStorageDirectory().toString()+"/7Recorder/");
         folder.mkdirs();
 
-        //Save the path as a string value
+        //SAVE THE PATH AS A STRING VALUE
         String extStorageDirectory = folder.toString();
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -73,6 +75,7 @@ public class RecorderActivity extends Activity {
                     button.setText(stopRecordingLabel);
                     mIsRecording = true;
                     mRecorder.startRecording();
+
                     mRecording = getFile("raw");
                     startBufferedWrite(mRecording);
                     chronometer.start();
@@ -82,6 +85,36 @@ public class RecorderActivity extends Activity {
                             chronometer.start();
                             break;
                     }
+                    //SET TIME LIMIT
+                    Handler = new Handler();
+                    Runnable r = new Runnable() {
+                        public void run() {
+                            button.setText(startRecordingLabel);
+                            mIsRecording = false;
+                            mRecorder.stop();
+                            chronometer.stop();
+                            File waveFile = getFile("wav");
+                            switch (v.getId()) {
+                                case R.id.button:
+                                    chronometer.stop();
+                                    break;
+                            }
+
+
+                            try {
+                                rawToWave(mRecording, waveFile);
+                            } catch (IOException e) {
+                                Toast.makeText(RecorderActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                            Toast.makeText(RecorderActivity.this, "Recorded to " + waveFile.getName(),
+                                    Toast.LENGTH_SHORT).show();
+
+
+                        }
+                    };
+
+                    Handler.postDelayed(r, 30000); // 30 SECONDS
+                    //SET TIME LIMIT
                 } else {
                     button.setText(startRecordingLabel);
                     mIsRecording = false;
@@ -94,6 +127,7 @@ public class RecorderActivity extends Activity {
                             break;
                     }
 
+
                     try {
                         rawToWave(mRecording, waveFile);
                     } catch (IOException e) {
@@ -102,6 +136,7 @@ public class RecorderActivity extends Activity {
                     Toast.makeText(RecorderActivity.this, "Recorded to " + waveFile.getName(),
                             Toast.LENGTH_SHORT).show();
                 }
+
 
             }
         });
